@@ -9,6 +9,10 @@ const registerValid = joi.object({
   name: joi.string().required().min(6),
   email: joi.string().required().min(6),
   password: joi.string().required().min(6),
+  age: joi.string().required().min(2),
+  gender: joi.string().required(),
+  occupation: joi.string().required(),
+  
 });
 const loginValid = joi.object({
   email: joi.string().required().min(6),
@@ -29,6 +33,9 @@ router.post("/register", async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: hash,
+    age:req.body.age,
+    gender:req.body.gender,
+    occupation:req.body.occupation,
   });
   
   user.save((err, data) => {
@@ -57,4 +64,26 @@ router.get("/Access",middleware,(req,res)=>{
         reason:"I should not be here"
     });
 });
+router.put("/Edit",middleware,async (req,res)=>{
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(req.body.password, salt);
+const edited = {
+  name: req.body.name,
+  email: req.body.email,
+  password: hash,
+  age:req.body.age,
+  gender:req.body.gender,
+  occupation:req.body.occupation,
+}
+ const exists = await Model.findOne({ email: req.body.email });
+ const id = exists._id
+ Model.findByIdAndUpdate(id,{$set:edited},{required:true},(err,data)=>{
+  if(!err){
+    return res.json({ code: 200, message: "User Details Edited", details:edited});
+  }
+  else{
+   console.log(err)
+  }
+ })
+})
 module.exports = router;
