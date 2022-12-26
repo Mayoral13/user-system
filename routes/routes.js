@@ -30,6 +30,7 @@ router.post("/register", async (req, res) => {
     email: req.body.email,
     password: hash,
   });
+  
   user.save((err, data) => {
     if (!err) {
       return res.json({ code: 200, message: "User Registered", user: data });
